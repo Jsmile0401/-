@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>勤怠管理</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      text-align: center;
+    }
+    select, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 16px;
+    }
+    button {
+      width: 120px;
+      font-size: 18px;
+    }
+    .button-container {
+      margin-top: 20px;
+    }
+    button:first-child {
+      margin-right: 20px;
+    }
+  </style>
+  <script>
+    function getLocationAndSend(action) {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var latitude = position.coords.latitude;
+          var longitude = position.coords.longitude;
+          
+          // Google Apps Scriptにデータを送信する
+          var url = "https://script.google.com/macros/s/AKfycbwtEaWMjNz3Kelmknl1Gx7cSwUiq5DrcNZvkqLegDc9S6sSyX8CuI_bM2OHSlbrhwjM3A/exec";
+          
+          // 送信するデータ
+          var data = {
+            "action": action,
+            "latitude": latitude,
+            "longitude": longitude,
+            "name": document.getElementById("name").value
+          };
+
+          // データを送信 (CORS制約回避のため mode: 'no-cors' を追加)
+          fetch(url, {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+              "Content-Type": "application/json"
+            },
+            mode: 'no-cors'
+          })
+          .then(() => {
+            alert(action + "が記録されました");
+          })
+          .catch(error => {
+            console.error("エラー:", error);
+            alert("エラー: " + error.message);
+          });
+        });
+      } else {
+        alert("ブラウザが位置情報をサポートしていません");
+      }
+    }
+  </script>
+</head>
+<body>
+  <div class="container">
+    <label for="name">名前を選択:</label><br>
+    <select id="name">
+      <option value="小川 大希">小川 大希</option>
+      <option value="松野 菜穂">松野 菜穂</option>
+    </select><br><br>
+
+    <div class="button-container">
+      <button onclick="getLocationAndSend('出勤')">出勤</button>
+      <button onclick="getLocationAndSend('退勤')">退勤</button>
+    </div>
+  </div>
+</body>
+</html>
